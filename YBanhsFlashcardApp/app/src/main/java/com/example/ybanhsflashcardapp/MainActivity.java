@@ -7,6 +7,7 @@ import android.animation.Animator;
 import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.plattysoft.leonids.ParticleSystem;
 
 import java.util.List;
 import java.util.Random;
@@ -41,6 +43,12 @@ public class MainActivity extends AppCompatActivity {
         return rand.nextInt((maxNumber - minNumber) + 1) + minNumber;
     }
 
+    CountDownTimer countDownTimer;
+    private void startTimer() {
+        countDownTimer.cancel();
+        countDownTimer.start();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,13 +67,24 @@ public class MainActivity extends AppCompatActivity {
         // To make sure both onCreate and onActivityResult have the most up-to-date List
         allFlashcards = flashcardDatabase.getAllCards();
 
-
         if (allFlashcards != null && allFlashcards.size() > 0) {
             flashcard_question.setText(allFlashcards.get(0).getQuestion());
             flashcard_answer.setText(allFlashcards.get(0).getAnswer());
             wronganswer1.setText(allFlashcards.get(0).getWrongAnswer1());
             wronganswer2.setText(allFlashcards.get(0).getWrongAnswer2());
         }
+
+        countDownTimer = new CountDownTimer(16000, 1000) {
+            @Override
+            public void onTick(long l) {
+                ((TextView) findViewById(R.id.timer)).setText("" + l / 1000);
+            }
+
+            @Override
+            public void onFinish() {
+
+            }
+        };
 
 
         // Function to hide and show answer
@@ -153,6 +172,20 @@ public class MainActivity extends AppCompatActivity {
                 if (!IsAnswerClicked[0]) {
                     flashcard_answer.setTextColor(getResources().getColor(R.color.green));
                     IsAnswerClicked[0] = true;
+
+                    //throw confetti
+                    new ParticleSystem(MainActivity.this, 100, R.drawable.confetti, 2000)
+                            .setSpeedRange(0.2f, 0.5f)
+                            .oneShot(flashcard_answer, 25);
+                    new ParticleSystem(MainActivity.this, 100, R.drawable.confetti2, 2000)
+                            .setSpeedRange(0.2f, 0.5f)
+                            .oneShot(flashcard_answer, 25);
+                    new ParticleSystem(MainActivity.this, 100, R.drawable.confetti3, 2000)
+                            .setSpeedRange(0.2f, 0.5f)
+                            .oneShot(flashcard_answer, 25);
+                    new ParticleSystem(MainActivity.this, 100, R.drawable.confetti4, 2000)
+                            .setSpeedRange(0.2f, 0.5f)
+                            .oneShot(flashcard_answer, 25);
                 }
             }
         });
@@ -225,6 +258,15 @@ public class MainActivity extends AppCompatActivity {
                         flashcard_answer.setText(currentCard.getAnswer());
                         wronganswer1.setText(currentCard.getWrongAnswer1());
                         wronganswer2.setText(currentCard.getWrongAnswer2());
+
+                        //reset the answer
+                        wronganswer1.setTextColor(getResources().getColor(R.color.darkblue));
+                        wronganswer2.setTextColor(getResources().getColor(R.color.darkblue));
+                        flashcard_answer.setTextColor(getResources().getColor(R.color.darkblue));
+                        IsAnswerClicked[0] = false;
+
+                        //start the timer
+                        startTimer();
                     }
 
                     @Override
